@@ -1,11 +1,9 @@
 # System Banking DIO with Pandas
 
 
-![GitHub repo size](https://img.shields.io/github/repo-size/iuricode/System-Banking-DIO?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/iuricode/System-Banking-DIO?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/iuricode/System-Banking-DIO?style=for-the-badge)
-![Bitbucket open issues](https://img.shields.io/bitbucket/issues/iuricode/System-Banking-DIO?style=for-the-badge)
-![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/iuricode/System-Banking-DIO?style=for-the-badge)
+![GitHub repo size](https://img.shields.io/github/repo-size/Wanderson-Fer/System-Banking-DIO?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/Wanderson-Fer/System-Banking-DIO?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/Wanderson-Fer/System-Banking-DIO?style=for-the-badge)
 
 
 ## Deposito
