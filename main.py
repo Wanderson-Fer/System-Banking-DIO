@@ -145,4 +145,4 @@ if __name__ == '__main__':
             print('Escolha uma das opções no menu!')
 
     print('\nObrigado por usar nossos serviços!\n')  # Bye
-    sleep(3)
+    sleep(2)
