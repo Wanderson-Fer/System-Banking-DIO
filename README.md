@@ -6,7 +6,7 @@
 ![GitHub forks](https://img.shields.io/github/forks/Wanderson-Fer/System-Banking-DIO?style=for-the-badge)
 
 
-## Deposito
+## Depósito
 
 ![Captura de tela do depósito](img/output_screen_depositar.png)
 > Tela de depósito
