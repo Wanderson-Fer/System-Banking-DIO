@@ -36,7 +36,7 @@ def transacao(tipo: str, df: pd.DataFrame) -> pd.DataFrame:
         Return:
             Um DataFrame com o registro da transação
     """
-    print(f'{tipo}'.center(30, '-'))
+    print(f'{tipo}'.center(45, '-'))
 
     valor = 0
     print(f'Informe o valor você deseja {tipo}: ')
@@ -87,7 +87,7 @@ def get_extrato(df: pd.DataFrame):
             df: hitórico de transações
     """
 
-    print('Extrato'.center(30, '-'))
+    print('Extrato'.center(45, '-'))
 
     # Cabeçalho
     print('Ação'.ljust(12), 'Valor (R$)'.ljust(12), 'Data'.ljust(18), sep='|')
@@ -100,6 +100,9 @@ def get_extrato(df: pd.DataFrame):
             registro['Data'].strftime('%d/%m/%Y').ljust(18),
             sep='|'
         )
+
+    saldo = df['Valor'].sum()
+    print(f'O saldo final é: {saldo}')
 
 
 if __name__ == '__main__':
@@ -116,6 +119,7 @@ if __name__ == '__main__':
     LIMITE = 500.0
     LIMITE_SAQUES = 3
 
+    print("Bem-vindo ao DIO Banking ".ljust(45, '='))
     while True:
         opcao = input(menu)
 
