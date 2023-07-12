@@ -25,24 +25,42 @@ def to_float(valor: str) -> float:
     return novo_valor
 
 def print_title(title: str):
-    print('\n', title.center(40, ' '), end='\n\n')
+    """Exibição de título, padronizada"""
+    print('-'*40)
+    print(title.center(40, ' '))
+    print('-'*40)
 
 def get_saldo(df: pd.DataFrame) -> float:
+    """
+        Saldo da conta contido no DataFrame
+        Args:
+            df: Dataframe com a coluna 'Valor' para as transições
+        Returns:
+            Saldo da conta obtido através do somatório dos valores
+    """
     saldo = df['Valor'].sum()
 
     return saldo
 
 def get_qtd_saques(df: pd.DataFrame) -> int:
-    linhas, colunas = df.loc[df['Tipo de transação'] == 'Saque'].shape
+    """
+        Quantidade de saques da conta contido no DataFrame
+        Args:
+            df: Dataframe com a coluna 'Tipo de transação' para as transições 'Saque'
+        Returns:
+            Quantidade de 'Saques' encontrados no DataFrame
+    """
 
-    return linhas
+    qtd_linhas, qtd_colunas = df.loc[df['Tipo de transação'] == 'Saque'].shape
+
+    return qtd_linhas
 
 def get_extrato(df: pd.DataFrame):
     """
         Imprime o extrato a partir do DataFrame com o histórico
 
         Args:
-            df: hitórico de transações
+            df: hitórico de transações com 'Tipo de transação', 'Valor' e 'Data'
     """
 
     print_title('Extrato')
@@ -62,6 +80,15 @@ def get_extrato(df: pd.DataFrame):
     print(f'O saldo final é: {get_saldo(df)}')
 
 def validar_saque(df: pd.DataFrame) -> float:
+    """
+        Valida o input de saque, caso: seja número, esteja acima do limite, ou do saldo
+
+        Args:
+            df: DataFrame com o histórico de transações
+        Returns:
+            Valor do saque se informado válido
+    """
+
     is_invalid = True
     valor_sacado = 0
     global LIMITE
@@ -87,6 +114,13 @@ def validar_saque(df: pd.DataFrame) -> float:
     return - valor_sacado  # Deixando negativo para o df
 
 def sacar(df: pd.DataFrame) -> pd.DataFrame:
+    """
+        Operação de saque usando um Dataframe para realizar o registro
+        Args:
+            df: DataFrame com o histórico de transações
+        Return:
+            DataFrame com o histórico de transações adicionado da transação, se bem sucedida
+    """
     print_title('Sacar')
 
     print('Informe o valor que deseja sacar: ')
@@ -108,10 +142,10 @@ def sacar(df: pd.DataFrame) -> pd.DataFrame:
 
 def validar_deposito() -> float:
     """
-        Recebe e valida o input do usuário.
-            Valida se é um número
-            Validade se é positivo
+        Valida o input de depósito, caso seja um número positivo
 
+        Returns:
+            Valor do depósito se informado válido
     """
 
     is_invalid = True
@@ -129,6 +163,13 @@ def validar_deposito() -> float:
     return valor_deposito
 
 def depositar(df: pd.DataFrame) -> pd.DataFrame:
+    """
+        Operação de depósito usando um Dataframe para realizar o registro
+        Args:
+            df: DataFrame com o histórico de transações
+        Return:
+            DataFrame com o histórico de transações adicionado da transação, se bem sucedida
+    """
     print_title('Depositar')
 
     print('Informe o valor que deseja depositar: ')
@@ -178,10 +219,13 @@ if __name__ == '__main__':
             # contando quantidade de Saques
             qtd_saques_realizados = get_qtd_saques(df_extrato)
             print(f'Saques realizados: {qtd_saques_realizados}')
+
             if qtd_saques_realizados >= LIMITE_SAQUES:
                 print('Quantidade de saques diária atingida!')
+
             elif get_saldo(df_extrato) <= 0:
                 print('Não há saldo na conta para realizar saques!')
+
             else:
                 df_extrato = sacar(df_extrato)
 
@@ -196,4 +240,4 @@ if __name__ == '__main__':
             print('Escolha uma das opções no menu!')
 
     print('\nObrigado por usar nossos serviços!\n')  # Bye
-    sleep(2)
+    sleep(1.375)
