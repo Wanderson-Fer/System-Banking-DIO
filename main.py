@@ -27,61 +27,6 @@ def to_float(valor: str) -> float:
 def print_title(title: str):
     print('\n', title.center(40, ' '), end='\n\n')
 
-def transacao(tipo: str, df: pd.DataFrame) -> pd.DataFrame:
-    """
-        Registrar uma transação no 'DataFrame' validando o valor informado.
-        Espera-se que a transação já tanha sido permitida.
-
-        Args:
-            tipo: Contém informações a respeito da transação
-                ('Sacar' ou 'Depositar')
-            df: Contém o DataFrame com o histórico de transações
-        Return:
-            Um DataFrame com o registro da transação
-    """
-    print(f'{tipo}'.center(45, '-'))
-
-    valor = 0
-    print(f'Informe o valor você deseja {tipo}: ')
-    while valor <= 0:  # Executando até receber um valor válido
-        valor = to_float(input('R$ '))
-
-        if valor <= 0:
-            print('Informe um valor válido!')
-
-        if tipo == 'Sacar':
-            # Validando limite de valor do saque
-            if valor > LIMITE:
-                print('Valor informado acima do limite permitido!')
-                print(f'O limite é: {LIMITE}')
-                print('Informe um valor válido.')
-                valor = 0  # Manter dentro do loop
-
-            elif valor > df['Valor'].sum():  # Validando o valor do saque de acordo com o saldo
-                print('Saldo insuficiente!')
-
-                if df['Valor'].sum() <= 0.0:
-                    print('Você não tem saldo para saques.')
-                    return df  # Saindo em caso de saque inviável
-                else:
-                    valor = 0  # Manter dentro do loop
-            else:
-                valor = - valor  # Deixando o valor negativo em casos de Saque
-                break
-
-    df_nova_trasacao = pd.DataFrame({
-        'Tipo de transação': [tipo],
-        'Valor': [valor],
-        'Data': [dt.now()]
-    })
-
-    print('Sua movimentação foi realizada com sucesso!')
-
-    return pd.concat([
-        df,
-        df_nova_trasacao
-    ]).reset_index(drop=True)
-
 def get_saldo(df: pd.DataFrame) -> float:
     saldo = df['Valor'].sum()
 
