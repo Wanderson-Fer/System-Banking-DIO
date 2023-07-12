@@ -25,7 +25,7 @@ def to_float(valor: str) -> float:
     return novo_valor
 
 def print_title(title: str):
-    print(title.center(45, ' '))
+    print('\n', title.center(40, ' '), end='\n\n')
 
 def transacao(tipo: str, df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -82,6 +82,16 @@ def transacao(tipo: str, df: pd.DataFrame) -> pd.DataFrame:
         df_nova_trasacao
     ]).reset_index(drop=True)
 
+def get_saldo(df: pd.DataFrame) -> float:
+    saldo = df['Valor'].sum()
+
+    return saldo
+
+def get_qtd_saques(df: pd.DataFrame) -> int:
+    linhas, colunas = df.loc[df['Tipo de transação'] == 'Saque'].shape
+
+    return linhas
+
 def get_extrato(df: pd.DataFrame):
     """
         Imprime o extrato a partir do DataFrame com o histórico
@@ -90,7 +100,7 @@ def get_extrato(df: pd.DataFrame):
             df: hitórico de transações
     """
 
-    print('Extrato'.center(45, '-'))
+    print_title('Extrato')
 
     # Cabeçalho
     print('Ação'.ljust(12), 'Valor (R$)'.ljust(12), 'Data'.ljust(18), sep='|')
@@ -104,8 +114,52 @@ def get_extrato(df: pd.DataFrame):
             sep='|'
         )
 
-    saldo = df['Valor'].sum()
-    print(f'O saldo final é: {saldo}')
+    print(f'O saldo final é: {get_saldo(df)}')
+
+def validar_saque(df: pd.DataFrame) -> float:
+    is_invalid = True
+    valor_sacado = 0
+    global LIMITE
+
+    while is_invalid:
+        valor_sacado = input('>>> R$ ')
+        valor_sacado = to_float(valor_sacado)
+
+        if valor_sacado <= 0:
+            print('Informe um valor positivo para o saque: ')
+        elif valor_sacado > LIMITE:
+            print('O valor está acima do limite permitido!')
+            print(f'Informe um valor abaido do limite de R$ {LIMITE}')
+        elif valor_sacado > get_saldo(df):
+            print('Saldo insuficiente!')
+            if get_saldo(df) > LIMITE:
+                print(f'Valor disponível de R$ {LIMITE}')
+            else:
+                print(f'Valor disponível de R$ {get_saldo(df)}')
+        else:
+            is_invalid = False
+
+    return - valor_sacado  # Deixando negativo para o df
+
+def sacar(df: pd.DataFrame) -> pd.DataFrame:
+    print_title('Sacar')
+
+    print('Informe o valor que deseja sacar: ')
+    valor_sacado = validar_saque(df)
+
+    df_nova_trasacao = pd.DataFrame({
+        'Tipo de transação': ['Saque'],
+        'Valor': [valor_sacado],
+        'Data': [dt.now()]
+    })
+
+    print('Seu saque foi realizado com sucesso!')
+    # MOSTRAR NOVO SALDO
+
+    return pd.concat([
+        df,
+        df_nova_trasacao
+    ]).reset_index(drop=True)
 
 def validar_deposito() -> float:
     """
@@ -122,14 +176,14 @@ def validar_deposito() -> float:
         valor_deposito = input('>>> R$ ')
         valor_deposito = to_float(valor_deposito)  # Valida se é numérico
 
-        if valor_deposito > 0:  # Apenas positivo
-            is_invalid = False
-        else:
+        if valor_deposito <= 0:  # Apenas positivo
             print('Informe um valor positivo para o depósito: ')
+        else:
+            is_invalid = False
 
     return valor_deposito
 
-def depositar(df: pd.DataFrame):
+def depositar(df: pd.DataFrame) -> pd.DataFrame:
     print_title('Depositar')
 
     print('Informe o valor que deseja depositar: ')
@@ -164,7 +218,7 @@ if __name__ == '__main__':
     LIMITE = 500.0
     LIMITE_SAQUES = 3
 
-    print("Bem-vindo ao DIO Banking ".ljust(45, '='))
+    print_title("Bem-vindo ao DIO Banking")
     while True:
         opcao = input(menu)
 
@@ -177,12 +231,14 @@ if __name__ == '__main__':
 
         elif opcao == '2':  # Sacar
             # contando quantidade de Saques
-            row, _col = df_extrato.loc[df_extrato['Tipo de transação'] == 'Sacar'].shape
-            print(f'Saques realizados: {row}')
-            if row >= LIMITE_SAQUES:
+            qtd_saques_realizados = get_qtd_saques(df_extrato)
+            print(f'Saques realizados: {qtd_saques_realizados}')
+            if qtd_saques_realizados >= LIMITE_SAQUES:
                 print('Quantidade de saques diária atingida!')
+            elif get_saldo(df_extrato) <= 0:
+                print('Não há saldo na conta para realizar saques!')
             else:
-                df_extrato = transacao('Sacar', df_extrato)
+                df_extrato = sacar(df_extrato)
 
         elif opcao == '3':  # Ver extrato
             if df_extrato.empty:
