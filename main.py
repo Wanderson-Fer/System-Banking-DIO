@@ -55,25 +55,26 @@ def get_qtd_saques(df: pd.DataFrame) -> int:
 
     return qtd_linhas
 
-def get_extrato(df: pd.DataFrame):
+def get_extrato(df: pd.DataFrame, nome: str):
     """
         Imprime o extrato a partir do DataFrame com o histórico
 
         Args:
             df: hitórico de transações com 'Tipo de transação', 'Valor' e 'Data'
+            nome: Nome do usuário que realiza a transação
     """
 
-    print_title('Extrato')
+    print_title(f'Extrato: {nome}')
 
     # Cabeçalho
-    print('Ação'.ljust(12), 'Valor (R$)'.ljust(12), 'Data'.ljust(18), sep='|')
+    print('Ação'.ljust(12), 'Valor (R$)'.ljust(12), 'Data e Hora'.ljust(18), sep='|')
 
     # Valores
     for _, registro in df.iterrows():
         print(
             registro['Tipo de transação'].ljust(12),
             f"R$ {registro['Valor']}".ljust(12),
-            registro['Data'].strftime('%d/%m/%Y').ljust(18),
+            registro['Data'].strftime('%d/%m/%Y %H:%M').ljust(18),
             sep='|'
         )
 
@@ -113,11 +114,12 @@ def validar_saque(df: pd.DataFrame) -> float:
 
     return - valor_sacado  # Deixando negativo para o df
 
-def sacar(df: pd.DataFrame) -> pd.DataFrame:
+def sacar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
     """
         Operação de saque usando um Dataframe para realizar o registro
         Args:
             df: DataFrame com o histórico de transações
+            nome: Nome do usuário que realiza a transação
         Return:
             DataFrame com o histórico de transações adicionado da transação, se bem sucedida
     """
@@ -127,6 +129,7 @@ def sacar(df: pd.DataFrame) -> pd.DataFrame:
     valor_sacado = validar_saque(df)
 
     df_nova_trasacao = pd.DataFrame({
+        'Usuário': [nome],
         'Tipo de transação': ['Saque'],
         'Valor': [valor_sacado],
         'Data': [dt.now()]
@@ -162,11 +165,12 @@ def validar_deposito() -> float:
 
     return valor_deposito
 
-def depositar(df: pd.DataFrame) -> pd.DataFrame:
+def depositar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
     """
         Operação de depósito usando um Dataframe para realizar o registro
         Args:
             df: DataFrame com o histórico de transações
+            nome: Nome do usuário que realiza a transação
         Return:
             DataFrame com o histórico de transações adicionado da transação, se bem sucedida
     """
@@ -176,6 +180,7 @@ def depositar(df: pd.DataFrame) -> pd.DataFrame:
     valor_deposito = validar_deposito()
 
     df_nova_trasacao = pd.DataFrame({
+        'Usuário': [nome],
         'Tipo de transação': ['Depósito'],
         'Valor': [valor_deposito],
         'Data': [dt.now()]
@@ -189,22 +194,19 @@ def depositar(df: pd.DataFrame) -> pd.DataFrame:
         df_nova_trasacao
     ]).reset_index(drop=True)
 
-
-if __name__ == '__main__':
+def manipular_conta(*, nome: str):
     menu = """
-    
+
     [1] Depositar
     [2] Sacar
     [3] Extrato
     [0] Sair
-    
+
     >>> """
 
-    df_extrato = pd.DataFrame(columns=['Tipo de transação', 'Valor', 'Data'])
-    LIMITE = 500.0
-    LIMITE_SAQUES = 3
+    df_extrato = pd.DataFrame(columns=['Usuário', 'Tipo de transação', 'Valor', 'Data'])
 
-    print_title("Bem-vindo ao DIO Banking")
+    print_title(f"Bem-vindo ao DIO Banking, {nome}")
     while True:
         opcao = input(menu)
 
@@ -213,7 +215,7 @@ if __name__ == '__main__':
 
         elif opcao == '1':  # Depositar
             # df_extrato = transacao('Depositar', df_extrato)
-            df_extrato = depositar(df_extrato)
+            df_extrato = depositar(df_extrato, nome)
 
         elif opcao == '2':  # Sacar
             # contando quantidade de Saques
@@ -227,17 +229,24 @@ if __name__ == '__main__':
                 print('Não há saldo na conta para realizar saques!')
 
             else:
-                df_extrato = sacar(df_extrato)
+                df_extrato = sacar(df_extrato, nome)
 
         elif opcao == '3':  # Ver extrato
             if df_extrato.empty:
                 print('Nenhuma transação registrada!')
             else:
-                get_extrato(df_extrato)
+                get_extrato(df_extrato, nome)
 
         else:
             print('Ainda estamos trabalhando nisso...')
             print('Escolha uma das opções no menu!')
+
+
+if __name__ == '__main__':
+    LIMITE = 500.0
+    LIMITE_SAQUES = 3
+
+    manipular_conta(nome='Wanderson')
 
     print('\nObrigado por usar nossos serviços!\n')  # Bye
     sleep(1.375)
