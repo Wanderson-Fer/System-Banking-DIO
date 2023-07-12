@@ -24,6 +24,9 @@ def to_float(valor: str) -> float:
 
     return novo_valor
 
+def print_title(title: str):
+    print(title.center(45, ' '))
+
 def transacao(tipo: str, df: pd.DataFrame) -> pd.DataFrame:
     """
         Registrar uma transação no 'DataFrame' validando o valor informado.
@@ -104,6 +107,48 @@ def get_extrato(df: pd.DataFrame):
     saldo = df['Valor'].sum()
     print(f'O saldo final é: {saldo}')
 
+def validar_deposito() -> float:
+    """
+        Recebe e valida o input do usuário.
+            Valida se é um número
+            Validade se é positivo
+
+    """
+
+    is_invalid = False
+    valor_deposito = 0  # Inicializando para evitar problemas de escopo
+
+    while is_invalid:
+        valor_deposito = input('>>> R$ ')
+        valor_deposito = to_float(valor_deposito)  # Valida se é numérico
+
+        if valor_deposito > 0:  # Apenas positivo
+            is_invalid = True
+        else:
+            print('Informe um valor positivo para o depósito: ')
+
+    return valor_deposito
+
+def depositar(df: pd.DataFrame):
+    print_title('Depositar')
+
+    print('Informe o valor que deseja depositar: ')
+    valor_deposito = validar_deposito()
+
+    df_nova_trasacao = pd.DataFrame({
+        'Tipo de transação': ['Depósito'],
+        'Valor': [valor_deposito],
+        'Data': [dt.now()]
+    })
+
+    print('Seu depósito foi realizado com sucesso!')
+    # MOSTRAR NOVO SALDO
+
+    return pd.concat([
+        df,
+        df_nova_trasacao
+    ]).reset_index(drop=True)
+
 
 if __name__ == '__main__':
     menu = """
@@ -127,7 +172,8 @@ if __name__ == '__main__':
             break  # Saíndo do loop e encerrando o programa
 
         elif opcao == '1':  # Depositar
-            df_extrato = transacao('Depositar', df_extrato)
+            # df_extrato = transacao('Depositar', df_extrato)
+            df_extrato = depositar(df_extrato)
 
         elif opcao == '2':  # Sacar
             # contando quantidade de Saques
