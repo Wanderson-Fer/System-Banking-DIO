@@ -115,7 +115,7 @@ def validar_deposito() -> float:
 
     """
 
-    is_invalid = False
+    is_invalid = True
     valor_deposito = 0  # Inicializando para evitar problemas de escopo
 
     while is_invalid:
@@ -123,7 +123,7 @@ def validar_deposito() -> float:
         valor_deposito = to_float(valor_deposito)  # Valida se é numérico
 
         if valor_deposito > 0:  # Apenas positivo
-            is_invalid = True
+            is_invalid = False
         else:
             print('Informe um valor positivo para o depósito: ')
 
