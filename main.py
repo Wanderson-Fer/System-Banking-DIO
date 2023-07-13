@@ -56,16 +56,17 @@ def get_qtd_saques(df: pd.DataFrame) -> int:
 
     return qtd_linhas
 
-def get_extrato(df: pd.DataFrame, nome: str):
+def get_extrato(df: pd.DataFrame, nome: str, conta: str):
     """
         Imprime o extrato a partir do DataFrame com o histórico
 
         Args:
             df: hitórico de transações com 'Tipo de transação', 'Valor' e 'Data'
             nome: Nome do usuário que realiza a transação
+            conta: Numero da conta em que a transação ocorre
     """
 
-    print_title(f'Extrato: {nome}')
+    print_title(f'Extrato: {nome} - {conta}')
 
     # Cabeçalho
     print('Ação'.ljust(12), 'Valor (R$)'.ljust(12), 'Data e Hora'.ljust(18), sep='|')
@@ -103,7 +104,7 @@ def validar_saque(df: pd.DataFrame) -> float:
             print('Informe um valor positivo para o saque: ')
         elif valor_sacado > LIMITE:
             print('O valor está acima do limite permitido!')
-            print(f'Informe um valor abaido do limite de R$ {LIMITE}')
+            print(f'Informe um valor abaido do limite diário de R$ {LIMITE}')
         elif valor_sacado > get_saldo(df):
             print('Saldo insuficiente!')
             if get_saldo(df) > LIMITE:
@@ -115,12 +116,13 @@ def validar_saque(df: pd.DataFrame) -> float:
 
     return - valor_sacado  # Deixando negativo para o df
 
-def sacar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
+def sacar(df: pd.DataFrame, nome: str, conta: str) -> pd.DataFrame:
     """
         Operação de saque usando um Dataframe para realizar o registro
         Args:
             df: DataFrame com o histórico de transações
             nome: Nome do usuário que realiza a transação
+            conta: Numero da conta em que a transação ocorre
         Return:
             DataFrame com o histórico de transações adicionado da transação, se bem sucedida
     """
@@ -131,6 +133,7 @@ def sacar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
 
     df_nova_trasacao = pd.DataFrame({
         'Usuário': [nome],
+        'Número da Conta': [conta],
         'Tipo de transação': ['Saque'],
         'Valor': [valor_sacado],
         'Data': [dt.now()]
@@ -166,12 +169,13 @@ def validar_deposito() -> float:
 
     return valor_deposito
 
-def depositar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
+def depositar(df: pd.DataFrame, nome: str, conta: str) -> pd.DataFrame:
     """
         Operação de depósito usando um Dataframe para realizar o registro
         Args:
             df: DataFrame com o histórico de transações
             nome: Nome do usuário que realiza a transação
+            conta: Numero da conta em que a transação ocorre
         Return:
             DataFrame com o histórico de transações adicionado da transação, se bem sucedida
     """
@@ -182,6 +186,7 @@ def depositar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
 
     df_nova_trasacao = pd.DataFrame({
         'Usuário': [nome],
+        'Número da Conta': [conta],
         'Tipo de transação': ['Depósito'],
         'Valor': [valor_deposito],
         'Data': [dt.now()]
@@ -195,7 +200,7 @@ def depositar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
         df_nova_trasacao
     ]).reset_index(drop=True)
 
-def manipular_conta(*, nome: str):
+def manipular_conta(df: pd.DataFrame, *, nome: str, conta: str) -> pd.DataFrame:
     menu_conta = """
         MENU
     [1] Depositar
@@ -205,7 +210,11 @@ def manipular_conta(*, nome: str):
 
     >>> """
 
-    df_extrato = pd.DataFrame(columns=['Usuário', 'Tipo de transação', 'Valor', 'Data'])
+    # Aplicando filtro no histórico para um único usuário
+    df_extrato = df.loc[
+        (df['Usuário'] == nome) &
+        (df['Número da Conta'] == conta)
+    ]
 
     while True:
         opcao = input(menu_conta)
@@ -215,7 +224,7 @@ def manipular_conta(*, nome: str):
 
         elif opcao == '1':  # Depositar
             # df_extrato = transacao('Depositar', df_extrato)
-            df_extrato = depositar(df_extrato, nome)
+            df_extrato = depositar(df_extrato, nome, conta)
 
         elif opcao == '2':  # Sacar
             # contando quantidade de Saques
@@ -229,17 +238,29 @@ def manipular_conta(*, nome: str):
                 print('Não há saldo na conta para realizar saques!')
 
             else:
-                df_extrato = sacar(df_extrato, nome)
+                df_extrato = sacar(df_extrato, nome, conta)
 
         elif opcao == '3':  # Ver extrato
             if df_extrato.empty:
                 print('Nenhuma transação registrada!')
             else:
-                get_extrato(df_extrato, nome)
+                get_extrato(df_extrato, nome, conta)
 
         else:
             print('Ainda estamos trabalhando nisso...')
             print('Escolha uma das opções no menu!')
+
+    print('Voltando ao Menu danterior...')
+    sleep(0.5)
+
+    df = pd.concat([
+        df,
+        df_extrato
+    ]).reset_index(drop=True)
+
+    df = df.drop_duplicates()
+
+    return df
 
 def cadastrar_usuario(df: pd.DataFrame) -> pd.DataFrame:
     print_title('Adicionar usuário')
@@ -272,15 +293,15 @@ def selecionar_usuario(df: pd.DataFrame) -> str:
     return usuario_selecionado
 
 def cadastrar_conta(df: pd.DataFrame, *, nome: str) -> pd.DataFrame:
-    numero_conta = randint(100000, 999999)
+    novo_numero_conta = str(randint(100000, 999999))
     # Garantir que seja único
-    while numero_conta not in list(df['Número da Conta']):
-        numero_conta = randint(100000, 999999)
+    while novo_numero_conta in list(df['Número da Conta']):
+        novo_numero_conta = str(randint(100000, 999999))
 
     df_nova_conta = pd.DataFrame({
-        'Número da Conta': [numero_conta],
+        'Número da Conta': [novo_numero_conta],
         'Usuário': [nome],
-        'Data da Criação': [dt.now()]
+        'Data da Criação': [dt.now().strftime('%d/%m/%Y %H:%M')]
     })
 
     print('Conta')
@@ -303,6 +324,17 @@ def cadastrar_conta(df: pd.DataFrame, *, nome: str) -> pd.DataFrame:
             print('A conta não foi criada!')
             return df
 
+def selecionar_conta(df: pd.DataFrame, *, nome: str) -> str:
+    print('Selecione uma conta')
+    df = df.loc[df['Usuário'] == nome].copy()  # Apenas as contas desse usuário
+    for index, users in df.iterrows():
+        print(f'[{index}]', users['Usuário'], users['Número da Conta'])
+
+    id_selecionado = int(input('>>> '))
+    conta_selecionada = df.loc[id_selecionado, 'Número da Conta']
+
+    return conta_selecionada
+
 
 if __name__ == '__main__':
     LIMITE = 500.0
@@ -313,14 +345,15 @@ if __name__ == '__main__':
     menu_principal = """
             MENU
     [1] Adicionar usuário
-    [2] Abrir conta-corrente
+    [2] Criar conta-corrente
     [3] Entrar em conta-corrente
     [0] Sair
     
     >>> """
 
     df_usuarios = pd.DataFrame(columns=['Usuário', 'Senha', 'Data de Cadastro'])
-    df_contas = pd.DataFrame(columns=['Número da conta', 'Usuário', 'Data de Criação'])
+    df_contas = pd.DataFrame(columns=['Número da Conta', 'Usuário', 'Data de Criação'])
+    df_historico = pd.DataFrame(columns=['Usuário', 'Número da Conta', 'Tipo de transação', 'Valor', 'Data'])
 
     while True:
         opcao = input(menu_principal)
@@ -333,13 +366,14 @@ if __name__ == '__main__':
 
         elif opcao == '2':
             # Abrir conta-corrente vinculada a um usuário
-            usuario = selecionar_usuario(df_usuarios)
-            df_contas = cadastrar_conta(df_contas, nome=usuario)
+            nome_selecionado = selecionar_usuario(df_usuarios)
+            df_contas = cadastrar_conta(df_contas, nome=nome_selecionado)
 
         elif opcao == '3':
             # Ingressar em conta-corrente
-            # manipular_conta(nome='Wanderson')
-            pass
+            nome_usuario = selecionar_usuario(df_usuarios)
+            numero_conta = selecionar_conta(df_contas, nome=nome_usuario)
+            df_historico = manipular_conta(df_historico, nome=nome_usuario, conta=numero_conta)
         else:
             print('Ainda estamos trabalhando nisso...')
             print('Escolha uma das opções no menu!')
