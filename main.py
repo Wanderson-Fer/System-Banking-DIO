@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime as dt
 from time import sleep
+from random import randint
 
 
 def to_float(valor: str) -> float:
@@ -270,6 +271,38 @@ def selecionar_usuario(df: pd.DataFrame) -> str:
 
     return usuario_selecionado
 
+def cadastrar_conta(df: pd.DataFrame, *, nome: str) -> pd.DataFrame:
+    numero_conta = randint(100000, 999999)
+    # Garantir que seja único
+    while numero_conta not in list(df['Número da Conta']):
+        numero_conta = randint(100000, 999999)
+
+    df_nova_conta = pd.DataFrame({
+        'Número da Conta': [numero_conta],
+        'Usuário': [nome],
+        'Data da Criação': [dt.now()]
+    })
+
+    print('Conta')
+    print(df_nova_conta.to_string())
+
+    while True:
+        foi_confirmado = input('Você deseja confirmar a criação da conta? [Y/n]')
+
+        if foi_confirmado == 'Y':
+            print('Conta criada com sucesso!')
+
+            return pd.concat([
+                df,
+                df_nova_conta
+            ])
+        elif foi_confirmado == 'n':
+            print('Cancelando...')
+            # sleep(10)  # para ficar esperto rs
+            sleep(1)
+            print('A conta não foi criada!')
+            return df
+
 
 if __name__ == '__main__':
     LIMITE = 500.0
@@ -287,7 +320,7 @@ if __name__ == '__main__':
     >>> """
 
     df_usuarios = pd.DataFrame(columns=['Usuário', 'Senha', 'Data de Cadastro'])
-    df_contas = pd.DataFrame(columns=[''])
+    df_contas = pd.DataFrame(columns=['Número da conta', 'Usuário', 'Data de Criação'])
 
     while True:
         opcao = input(menu_principal)
@@ -301,9 +334,8 @@ if __name__ == '__main__':
         elif opcao == '2':
             # Abrir conta-corrente vinculada a um usuário
             usuario = selecionar_usuario(df_usuarios)
-            print(usuario)
-            # df_contas = cadastrar_conta(df_contas, nome=usuario)
-            pass
+            df_contas = cadastrar_conta(df_contas, nome=usuario)
+
         elif opcao == '3':
             # Ingressar em conta-corrente
             # manipular_conta(nome='Wanderson')
