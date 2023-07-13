@@ -196,7 +196,7 @@ def depositar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
 
 def manipular_conta(*, nome: str):
     menu_conta = """
-
+        MENU
     [1] Depositar
     [2] Sacar
     [3] Extrato
@@ -260,6 +260,16 @@ def cadastrar_usuario(df: pd.DataFrame) -> pd.DataFrame:
         df_novo_usuario
     ]).reset_index(drop=True)
 
+def selecionar_usuario(df: pd.DataFrame) -> str:
+    print('Selecione um usuário')
+    for index, users in df.iterrows():
+        print(f'[{index}]', users['Usuário'])
+
+    id_selecionado = int(input('>>> '))
+    usuario_selecionado = df.loc[id_selecionado, 'Usuário']
+
+    return usuario_selecionado
+
 
 if __name__ == '__main__':
     LIMITE = 500.0
@@ -268,7 +278,7 @@ if __name__ == '__main__':
     print_title("Bem-vindo ao DIO Banking!")
 
     menu_principal = """
-    
+            MENU
     [1] Adicionar usuário
     [2] Abrir conta-corrente
     [3] Entrar em conta-corrente
@@ -290,6 +300,9 @@ if __name__ == '__main__':
 
         elif opcao == '2':
             # Abrir conta-corrente vinculada a um usuário
+            usuario = selecionar_usuario(df_usuarios)
+            print(usuario)
+            # df_contas = cadastrar_conta(df_contas, nome=usuario)
             pass
         elif opcao == '3':
             # Ingressar em conta-corrente
