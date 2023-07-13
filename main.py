@@ -195,20 +195,19 @@ def depositar(df: pd.DataFrame, nome: str) -> pd.DataFrame:
     ]).reset_index(drop=True)
 
 def manipular_conta(*, nome: str):
-    menu = """
+    menu_conta = """
 
     [1] Depositar
     [2] Sacar
     [3] Extrato
-    [0] Sair
+    [0] Voltar
 
     >>> """
 
     df_extrato = pd.DataFrame(columns=['Usuário', 'Tipo de transação', 'Valor', 'Data'])
 
-    print_title(f"Bem-vindo ao DIO Banking, {nome}")
     while True:
-        opcao = input(menu)
+        opcao = input(menu_conta)
 
         if opcao == '0':
             break  # Saíndo do loop e encerrando o programa
@@ -246,7 +245,32 @@ if __name__ == '__main__':
     LIMITE = 500.0
     LIMITE_SAQUES = 3
 
-    manipular_conta(nome='Wanderson')
+    print_title("Bem-vindo ao DIO Banking!")
+
+    menu_principal = """
+    
+    [1] Adicionar usuário
+    [2] Abrir conta-corrente
+    [3] Entrar em conta-corrente
+    [0] Sair
+    
+    >>> """
+
+    while True:
+        opcao = input(menu_principal)
+
+        if opcao == '0':
+            break
+        elif opcao == '1':
+            # Adicionar usuário
+            pass
+        elif opcao == '2':
+            # Abrir conta-corrente vinculada a um usuario
+            pass
+        elif opcao == '3':
+            # Ingressar em conta-corrente
+            # manipular_conta(nome='Wanderson')
+            pass
 
     print('\nObrigado por usar nossos serviços!\n')  # Bye
     sleep(1.375)
