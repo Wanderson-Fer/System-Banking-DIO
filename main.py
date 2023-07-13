@@ -76,7 +76,7 @@ def get_extrato(df: pd.DataFrame, nome: str, conta: str):
         print(
             registro['Tipo de transação'].ljust(12),
             f"R$ {registro['Valor']}".ljust(12),
-            registro['Data'].strftime('%d/%m/%Y %H:%M').ljust(18),
+            registro['Data'].strftime('%d/%m/%Y %H:%M:%S').ljust(18),
             sep='|'
         )
 
@@ -189,7 +189,7 @@ def depositar(df: pd.DataFrame, nome: str, conta: str) -> pd.DataFrame:
         'Número da Conta': [conta],
         'Tipo de transação': ['Depósito'],
         'Valor': [valor_deposito],
-        'Data': [dt.now()]
+        'Data': [dt.now().strftime('%d/%m/%Y %H:%M:%S')]
     })
 
     print('Seu depósito foi realizado com sucesso!')
@@ -267,7 +267,7 @@ def cadastrar_usuario(df: pd.DataFrame) -> pd.DataFrame:
 
     nome = input('Informe o nome do usuário: ')
     password = input('Informe uma senha para o usuário: ')
-    data_cadastro = dt.now().strftime('%d/%m/%Y %H:%M')
+    data_cadastro = dt.now().strftime('%d/%m/%Y %H:%M:%S')
 
     df_novo_usuario = pd.DataFrame({
         'Usuário': [nome],
@@ -301,7 +301,7 @@ def cadastrar_conta(df: pd.DataFrame, *, nome: str) -> pd.DataFrame:
     df_nova_conta = pd.DataFrame({
         'Número da Conta': [novo_numero_conta],
         'Usuário': [nome],
-        'Data da Criação': [dt.now().strftime('%d/%m/%Y %H:%M')]
+        'Data da Criação': [dt.now().strftime('%d/%m/%Y %H:%M:%S')]
     })
 
     print('Conta')
