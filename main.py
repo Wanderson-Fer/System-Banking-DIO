@@ -240,6 +240,26 @@ def manipular_conta(*, nome: str):
             print('Ainda estamos trabalhando nisso...')
             print('Escolha uma das opções no menu!')
 
+def cadastrar_usuario(df: pd.DataFrame) -> pd.DataFrame:
+    print_title('Adicionar usuário')
+
+    nome = input('Informe o nome do usuário: ')
+    password = input('Informe uma senha para o usuário: ')
+    data_cadastro = dt.now().strftime('%d/%m/%Y %H:%M')
+
+    df_novo_usuario = pd.DataFrame({
+        'Usuário': [nome],
+        'Senha': [password],
+        'Data de Cadastro': [data_cadastro]
+    })
+
+    print('Usuário adicionado com sucesso!')
+
+    return pd.concat([
+        df,
+        df_novo_usuario
+    ]).reset_index(drop=True)
+
 
 if __name__ == '__main__':
     LIMITE = 500.0
@@ -256,6 +276,9 @@ if __name__ == '__main__':
     
     >>> """
 
+    df_usuarios = pd.DataFrame(columns=['Usuário', 'Senha', 'Data de Cadastro'])
+    df_contas = pd.DataFrame(columns=[''])
+
     while True:
         opcao = input(menu_principal)
 
@@ -263,14 +286,18 @@ if __name__ == '__main__':
             break
         elif opcao == '1':
             # Adicionar usuário
-            pass
+            df_usuarios = cadastrar_usuario(df_usuarios)
+
         elif opcao == '2':
-            # Abrir conta-corrente vinculada a um usuario
+            # Abrir conta-corrente vinculada a um usuário
             pass
         elif opcao == '3':
             # Ingressar em conta-corrente
             # manipular_conta(nome='Wanderson')
             pass
+        else:
+            print('Ainda estamos trabalhando nisso...')
+            print('Escolha uma das opções no menu!')
 
     print('\nObrigado por usar nossos serviços!\n')  # Bye
     sleep(1.375)
