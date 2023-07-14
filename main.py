@@ -201,6 +201,19 @@ def depositar(df: pd.DataFrame, nome: str, conta: str) -> pd.DataFrame:
     ]).reset_index(drop=True)
 
 def manipular_conta(df: pd.DataFrame, *, nome: str, conta: str) -> pd.DataFrame:
+    """
+        Função encapsulada que oferece a interface para realizar
+        tranzacões na conta escolhida
+
+        Args:
+             df: DataFrame com o histórico de trasações
+             nome: Identificação do usuário
+             conta: Identificação da conta
+
+        Returns:
+            DataFrame acrescido das transações realizadas
+    """
+
     menu_conta = """
         MENU
     [1] Depositar
@@ -263,6 +276,16 @@ def manipular_conta(df: pd.DataFrame, *, nome: str, conta: str) -> pd.DataFrame:
     return df
 
 def cadastrar_usuario(df: pd.DataFrame) -> pd.DataFrame:
+    """
+        Realiza o cadastro do usuário
+
+        Args:
+            df: DataFrame com os dados de todos os cadastros
+
+        Returns:
+            DataFrame acrescido do novo usuário cadastrado
+    """
+
     print_title('Adicionar usuário')
 
     nome = input('Informe o nome do usuário: ')
@@ -283,6 +306,16 @@ def cadastrar_usuario(df: pd.DataFrame) -> pd.DataFrame:
     ]).reset_index(drop=True)
 
 def selecionar_usuario(df: pd.DataFrame) -> str:
+    """
+        Interface de seleção de usuários cadastrados
+
+        Args:
+            df: DataFrame com as informações dos usuários
+
+        Returns:
+            Nome do usuário selecionado
+    """
+
     print('Selecione um usuário')
     for index, users in df.iterrows():
         print(f'[{index}]', users['Usuário'])
@@ -293,6 +326,17 @@ def selecionar_usuario(df: pd.DataFrame) -> str:
     return usuario_selecionado
 
 def cadastrar_conta(df: pd.DataFrame, *, nome: str) -> pd.DataFrame:
+    """
+        Cadastro de contas para um usuário já existente
+
+        Args:
+            df: DataFrame com as informações das contas
+            nome: Identificação do usuário que esta realizando o cadastro
+
+        Returns:
+            DataFrame acrescido da nova conta cadastrada
+    """
+
     novo_numero_conta = str(randint(100000, 999999))
     # Garantir que seja único
     while novo_numero_conta in list(df['Número da Conta']):
@@ -325,6 +369,17 @@ def cadastrar_conta(df: pd.DataFrame, *, nome: str) -> pd.DataFrame:
             return df
 
 def selecionar_conta(df: pd.DataFrame, *, nome: str) -> str:
+    """
+        Seleciona a conta baseado no cadastro de contas
+
+        Args:
+            df: DataFrame com as informações de todas as contas
+            nome: Identificação do usuário cuja conta será escolhida
+
+        Returns:
+            Identificação da conta selecionada
+    """
+
     print('Selecione uma conta')
     df = df.loc[df['Usuário'] == nome].copy()  # Apenas as contas desse usuário
     for index, users in df.iterrows():
